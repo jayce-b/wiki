@@ -51,3 +51,19 @@ iptables -t filter -A OUTPUT -p tcp --dport 143 -j ACCEPT
 
 # NTP (horloge du serveur) 
 sudo iptables -t filter -A OUTPUT -p udp --dport 123 -j ACCEPT
+
+# PING
+iptables -t filter -A INPUT -p icmp -j ACCEPT 
+iptables -t filter -A OUTPUT -p icmp -j ACCEPT
+
+# Anti-Flood (qui sait...)
+iptables -A FORWARD -p tcp --syn -m limit --limit 1/second -j ACCEPT
+iptables -A FORWARD -p udp -m limit --limit 1/second -j ACCEPT
+iptables -A FORWARD -p icmp --icmp-type echo-request -m limit --limit 1/second -j ACCEPT
+
+# Limitation du scan des ports
+iptables -A FORWARD -p tcp --tcp-flags SYN,ACK,FIN,RST RST -m limit --limit 1/s -j ACCEPT
+
+# Bannir une IP
+iptables -A INPUT -s adresseipàbannir -j DROP
+
